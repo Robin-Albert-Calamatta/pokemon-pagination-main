@@ -8,7 +8,7 @@ const PokemonCard: FC<{ data: IPokemonRecord; className?: string | ClassNames }>
 }) => {
     return (
         <>
-            {/* <img src={data.sprites.official_artwork_front_default} /> */}
+            {/* <div>{data.id}</div> */}
             <div className={new ClassNames().add(className).list()}>{data.name}</div>
         </>
     );

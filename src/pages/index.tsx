@@ -3,6 +3,8 @@ import { Button, PokemonCard, ErrorBlock, SelectBox } from "./../components";
 import { ClassNames } from "@44north/classnames";
 import { useQuery, gql } from "@apollo/client";
 import type { IPokemonRecord } from "./../types";
+import axios from "axios";
+import Pagination from "./../components/Pagination";
 const POKEMON_QUERY = gql`
     query GetPokemon($pageNo: Int, $itemsPerPage: Int) {
         listPokemon(pageNo: $pageNo, itemsPerPage: $itemsPerPage) {
@@ -33,6 +35,11 @@ const POKEMON_QUERY = gql`
 `;
 function Homepage() {
     const [itemsPerPage, setItemsPerPage] = useState<number>(12);
+
+    const [pageList, setPageList] = useState([]);
+    const [pages, setPages] = useState<number>(1);
+    const [toggleNext, setToggleNext] = useState<boolean>(true);
+
     const [pageNo, setPageNo] = useState<number>(1);
     const { data, loading, error, refetch } = useQuery<{ listPokemon: IPokemonRecord[] }>(
         POKEMON_QUERY,
@@ -43,12 +50,47 @@ function Homepage() {
             }
         }
     );
+    const [pokemonCount, setPokemonCount] = useState<number>(100);
+
     useEffect(() => {
+        pageNo === 1 ? setToggleNext(true) : "";
+
+        axios.get<any>(`https://pokeapi.co/api/v2/pokemon`).then((res) => {
+            setPokemonCount(res.data.count);
+        });
+    }),
+        [];
+    useEffect(() => {
+        setPages(Math.ceil(pokemonCount / itemsPerPage));
         refetch({
             pageNo,
             itemsPerPage
         });
+
+        if (pages - 3 < pageNo) {
+            setToggleNext(false);
+        } else {
+            setToggleNext(true);
+        }
+
+        if (pageNo > 3) {
+            for (let i = pageNo - 3; i <= pageNo + 3; i++) {
+                pageList.push(i);
+            }
+        } else if (pageNo <= 3) {
+            for (let i = 1; i < 8; i++) {
+                pageList.push(i);
+            }
+        } else if (pageNo > data.listPokemon.length - 7) {
+            for (let i = data.listPokemon.length - 7; i < data.listPokemon.length; i++) {
+                pageList.push(i);
+            }
+        }
     }, [pageNo, itemsPerPage]);
+    // console.log(pages);
+    // console.log(pageList);
+    // console.log(pageNo);
+
     return (
         <div className={new ClassNames(["flex", "flex-col", "space-y-4"]).list()}>
             {error && <ErrorBlock error={error} />}
@@ -73,31 +115,23 @@ function Homepage() {
                 ]).list()}
             >
                 <div className={new ClassNames(["flex", "space-x-2", "items-center"]).list()}>
-                    <Button onClick={() => setPageNo(pageNo - 1)}>Previous Page</Button>
-                    {loading ? (
-                        <p>I am Loading...</p>
-                    ) : (data?.listPokemon || []).length === 0 ? (
-                        <ErrorBlock error={new Error("No Records Found")} />
-                    ) : (
-                        <div className={new ClassNames(["flex", "space-x-2", "items-center"])}>
-                            {data.listPokemon.map((_, index) => {
-                                if (pageNo === index + 1) {
-                                    return <Button disabled>{index + 1}</Button>;
-                                }
-                                return (
-                                    <Button onClick={() => setPageNo(index + 1)}>
-                                        {index + 1}
-                                    </Button>
-                                );
-                            })}
-                        </div>
-                    )}
-                    <Button onClick={() => setPageNo(pageNo + 1)}>Next Page</Button>
+                    <Pagination
+                        pageNo={pageNo}
+                        setPageNo={setPageNo}
+                        toggleNext={toggleNext}
+                        setPageList={setPageList}
+                        pageList={pageList}
+                        loading={loading}
+                        data={data}
+                        pages={pages}
+                    />
                 </div>
                 <div>
                     <SelectBox
                         value={itemsPerPage}
-                        onChange={(value) => setItemsPerPage(Number(value))}
+                        onChange={(value) => {
+                            setItemsPerPage(Number(value)), setPageList([]), setPageNo(1);
+                        }}
                         options={[1, 3, 6, 9, 12, 24, 48]}
                     />
                 </div>
