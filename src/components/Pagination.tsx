@@ -6,6 +6,9 @@ import { ClassNames } from "@44north/classnames";
 function Pagination(props) {
     return (
         <>
+            {
+                //disable the back button if our page value is 1
+            }
             {props.pageNo === 1 ? (
                 <Button
                     onClick={() => {
@@ -30,56 +33,66 @@ function Pagination(props) {
                 <ErrorBlock error={new Error("No Records Found")} />
             ) : (
                 <div className={new ClassNames(["flex", "space-x-2", "items-center"]).list()}>
-                    {props.pageList.map((_, index) => {
-                        if (props.pageNo === props.pageList[index]) {
-                            return (
-                                <Button
-                                    key={props.pageList[index]}
-                                    onClick={() => props.setPageList([])}
-                                    disabled
-                                >
-                                    {props.pageList[index]}
-                                </Button>
-                            );
-                        }
-
-                        return (
-                            <>
-                                {props.pages >= props.pageList[index] ? (
+                    {
+                        //map the page number as button elements and disable the page that user is on
+                        props.pageList.map((_, index) => {
+                            if (props.pageNo === props.pageList[index]) {
+                                return (
                                     <Button
-                                        onClick={() => {
-                                            props.setPageNo(props.pageList[index]),
-                                                props.setPageList([]);
-                                        }}
+                                        key={props.pageList[index]}
+                                        onClick={() => props.setPageList([])}
+                                        disabled
                                     >
                                         {props.pageList[index]}
                                     </Button>
-                                ) : (
-                                    ""
-                                )}
-                            </>
-                        );
-                    })}
+                                );
+                            }
+
+                            return (
+                                <>
+                                    {
+                                        //continue to map out the pages as buttons
+
+                                        props.pages >= props.pageList[index] ? (
+                                            <Button
+                                                onClick={() => {
+                                                    props.setPageNo(props.pageList[index]),
+                                                        props.setPageList([]);
+                                                }}
+                                            >
+                                                {props.pageList[index]}
+                                            </Button>
+                                        ) : (
+                                            ""
+                                        )
+                                    }
+                                </>
+                            );
+                        })
+                    }
                 </div>
             )}
-            {props.toggleNext ? (
-                <Button
-                    onClick={() => {
-                        props.setPageNo(props.pageNo + 1), props.setPageList([]);
-                    }}
-                >
-                    Next Page
-                </Button>
-            ) : (
-                <Button
-                    onClick={() => {
-                        props.setPageNo(props.pageNo + 1), props.setPageList([]);
-                    }}
-                    disabled
-                >
-                    Next Page
-                </Button>
-            )}
+            {
+                //Logic to determine whether the next button will be disabled or active
+                props.toggleNext ? (
+                    <Button
+                        onClick={() => {
+                            props.setPageNo(props.pageNo + 1), props.setPageList([]);
+                        }}
+                    >
+                        Next Page
+                    </Button>
+                ) : (
+                    <Button
+                        onClick={() => {
+                            props.setPageNo(props.pageNo + 1), props.setPageList([]);
+                        }}
+                        disabled
+                    >
+                        Next Page
+                    </Button>
+                )
+            }
         </>
     );
 }

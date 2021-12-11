@@ -39,7 +39,6 @@ function Homepage() {
     const [pageList, setPageList] = useState([]);
     const [pages, setPages] = useState<number>(1);
     const [toggleNext, setToggleNext] = useState<boolean>(true);
-
     const [pageNo, setPageNo] = useState<number>(1);
     const { data, loading, error, refetch } = useQuery<{ listPokemon: IPokemonRecord[] }>(
         POKEMON_QUERY,
@@ -50,9 +49,11 @@ function Homepage() {
             }
         }
     );
-    const [pokemonCount, setPokemonCount] = useState<number>(100);
 
+    const [pokemonCount, setPokemonCount] = useState<number>(100);
+    //use effect using axios to get total pokemon count
     useEffect(() => {
+        //ensuring that next button is toggled true once the application starts
         pageNo === 1 ? setToggleNext(true) : "";
 
         axios.get<any>(`https://pokeapi.co/api/v2/pokemon`).then((res) => {
@@ -60,19 +61,22 @@ function Homepage() {
         });
     }),
         [];
+
     useEffect(() => {
+        //Performs calculation of how many pages there will be and
         setPages(Math.ceil(pokemonCount / itemsPerPage));
         refetch({
             pageNo,
             itemsPerPage
         });
-
+        //logic for toggling the next button in pagination
         if (pages - 3 < pageNo) {
             setToggleNext(false);
         } else {
             setToggleNext(true);
         }
-
+        //logic for creating the pagination bar and ensuring that the data is only 7 elements long
+        //current page will be centred
         if (pageNo > 3) {
             for (let i = pageNo - 3; i <= pageNo + 3; i++) {
                 pageList.push(i);
@@ -87,9 +91,6 @@ function Homepage() {
             }
         }
     }, [pageNo, itemsPerPage]);
-    // console.log(pages);
-    // console.log(pageList);
-    // console.log(pageNo);
 
     return (
         <div className={new ClassNames(["flex", "flex-col", "space-y-4"]).list()}>
@@ -115,6 +116,9 @@ function Homepage() {
                 ]).list()}
             >
                 <div className={new ClassNames(["flex", "space-x-2", "items-center"]).list()}>
+                    {
+                        //utilizing pagination component created and sending props
+                    }
                     <Pagination
                         pageNo={pageNo}
                         setPageNo={setPageNo}
