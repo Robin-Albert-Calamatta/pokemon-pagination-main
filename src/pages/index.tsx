@@ -70,7 +70,7 @@ function Homepage() {
             itemsPerPage
         });
         //logic for toggling the next button in pagination
-        if (pages - 3 < pageNo) {
+        if (pages - 1 < pageNo) {
             setToggleNext(false);
         } else {
             setToggleNext(true);
@@ -91,7 +91,6 @@ function Homepage() {
             }
         }
     }, [pageNo, itemsPerPage]);
-
     return (
         <div className={new ClassNames(["flex", "flex-col", "space-y-4"]).list()}>
             {error && <ErrorBlock error={error} />}
