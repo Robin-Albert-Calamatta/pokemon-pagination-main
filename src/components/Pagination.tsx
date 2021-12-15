@@ -2,6 +2,19 @@ import React from "react";
 import { Button, PokemonCard, ErrorBlock, SelectBox } from "./../components";
 import PropTypes from "prop-types";
 import { ClassNames } from "@44north/classnames";
+import { Container } from "./Container";
+
+// type props = {
+//     // state types
+//                         pageNo: number,
+//                         setPageNo():any,
+//                         toggleNext:any,
+//                         setPageList():any,
+//                         pageList:number[],
+//                         loading: any,
+//                         data: string[],
+//                         pages: number[],
+//   }
 
 function Pagination(props) {
     return (
@@ -55,6 +68,7 @@ function Pagination(props) {
 
                                         props.pages >= props.pageList[index] ? (
                                             <Button
+                                                key={props.pageList[index]}
                                                 onClick={() => {
                                                     props.setPageNo(props.pageList[index]),
                                                         props.setPageList([]);

@@ -77,6 +77,8 @@ function Homepage() {
         }
         //logic for creating the pagination bar and ensuring that the data is only 7 elements long
         //current page will be centred
+
+        //if Page number is less than 3, no need to centre the first three elements
         if (pageNo > 3) {
             for (let i = pageNo - 3; i <= pageNo + 3; i++) {
                 pageList.push(i);
@@ -85,11 +87,13 @@ function Homepage() {
             for (let i = 1; i < 8; i++) {
                 pageList.push(i);
             }
-        } else if (pageNo > data.listPokemon.length - 7) {
-            for (let i = data.listPokemon.length - 7; i < data.listPokemon.length; i++) {
-                pageList.push(i);
-            }
         }
+        // else if (pageNo > data.listPokemon.length - 7) {
+        //     for (let i = data.listPokemon.length - 7; i < data.listPokemon.length; i++) {
+        //         pageList.push(i);
+        //     }
+        //     console.log("TEST");
+        // }
     }, [pageNo, itemsPerPage]);
     return (
         <div className={new ClassNames(["flex", "flex-col", "space-y-4"]).list()}>
