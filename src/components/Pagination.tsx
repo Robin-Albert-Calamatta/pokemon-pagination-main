@@ -1,112 +1,138 @@
-import React from "react";
-import { Button, PokemonCard, ErrorBlock, SelectBox } from "./../components";
-import PropTypes from "prop-types";
-import { ClassNames } from "@44north/classnames";
-import { Container } from "./Container";
+import { useEffect, useState } from "react";
+import { Button, ErrorBlock, SelectBox } from "./../components";
 
-// type props = {
-//     // state types
-//                         pageNo: number,
-//                         setPageNo():any,
-//                         toggleNext:any,
-//                         setPageList():any,
-//                         pageList:number[],
-//                         loading: any,
-//                         data: string[],
-//                         pages: number[],
-//   }
+import { ClassNames } from "@44north/classnames";
+
+import axios from "axios";
 
 function Pagination(props) {
+    const [pageList, setPageList] = useState([]);
+    const [pages, setPages] = useState<number>();
+
+    useEffect(() => {
+        axios.get(`https://pokeapi.co/api/v2/pokemon`).then((res) => {
+            // console.log("res.data.count: " + res.data.count);
+            setPages(Math.ceil(res.data.count / props.itemsPerPage));
+        });
+
+        if (props.pageNo > 3 && !(props.pageNo > pages - 7)) {
+            for (let i = props.pageNo - 3; i <= props.pageNo + 3; i++) {
+                pageList.push(i);
+            }
+        } else if (props.pageNo <= 3) {
+            for (let i = 1; i < 8; i++) {
+                pageList.push(i);
+            }
+        } else if (props.pageNo > pages - 7) {
+            for (let i = pages - 6; i <= pages; i++) {
+                pageList.push(i);
+            }
+        }
+
+        // setPages(Math.ceil(pokemonCount / props.itemsPerPage));
+    }, [props.pageNo, props.itemsPerPage]);
+
     return (
         <>
-            {
-                //disable the back button if our page value is 1
-            }
-            {props.pageNo === 1 ? (
-                <Button
-                    onClick={() => {
-                        props.setPageNo(props.pageNo - 1), props.setPageList([]);
-                    }}
-                    disabled
-                >
-                    Previous Page
-                </Button>
-            ) : (
-                <Button
-                    onClick={() => {
-                        props.setPageNo(props.pageNo - 1), props.setPageList([]);
-                    }}
-                >
-                    Previous Page
-                </Button>
-            )}
-            {props.loading ? (
-                <p>I am Loading...</p>
-            ) : (props.data?.listPokemon || []).length === 0 ? (
-                <ErrorBlock error={new Error("No Records Found")} />
-            ) : (
-                <div className={new ClassNames(["flex", "space-x-2", "items-center"]).list()}>
-                    {
-                        //map the page number as button elements and disable the page that user is on
-                        props.pageList.map((_, index) => {
-                            if (props.pageNo === props.pageList[index]) {
-                                return (
-                                    <Button
-                                        key={props.pageList[index]}
-                                        onClick={() => props.setPageList([])}
-                                        disabled
-                                    >
-                                        {props.pageList[index]}
-                                    </Button>
-                                );
-                            }
-
-                            return (
-                                <>
-                                    {
-                                        //continue to map out the pages as buttons
-
-                                        props.pages >= props.pageList[index] ? (
-                                            <Button
-                                                key={props.pageList[index]}
-                                                onClick={() => {
-                                                    props.setPageNo(props.pageList[index]),
-                                                        props.setPageList([]);
-                                                }}
-                                            >
-                                                {props.pageList[index]}
-                                            </Button>
-                                        ) : (
-                                            ""
-                                        )
-                                    }
-                                </>
-                            );
-                        })
-                    }
-                </div>
-            )}
-            {
-                //Logic to determine whether the next button will be disabled or active
-                props.toggleNext ? (
+            <div className={new ClassNames(["flex", "space-x-2", "items-center"]).list()}>
+                {
+                    //disable the back button if our page value is 1
+                }
+                {props.pageNo === 1 ? (
                     <Button
                         onClick={() => {
-                            props.setPageNo(props.pageNo + 1), props.setPageList([]);
+                            props.setPageNo(props.pageNo - 1), setPageList([]);
                         }}
+                        disabled
                     >
-                        Next Page
+                        Previous Page
                     </Button>
                 ) : (
                     <Button
                         onClick={() => {
-                            props.setPageNo(props.pageNo + 1), props.setPageList([]);
+                            props.setPageNo(props.pageNo - 1), setPageList([]);
                         }}
-                        disabled
                     >
-                        Next Page
+                        Previous Page
                     </Button>
-                )
-            }
+                )}
+                {props.loading ? (
+                    <p>I am Loading...</p>
+                ) : (props.data?.listPokemon || []).length === 0 ? (
+                    <ErrorBlock error={new Error("No Records Found")} />
+                ) : (
+                    <div className={new ClassNames(["flex", "space-x-2", "items-center"]).list()}>
+                        {
+                            //map the page number as button elements and disable the page that user is on
+                            pageList.map((_, index) => {
+                                if (props.pageNo === pageList[index]) {
+                                    return (
+                                        <Button
+                                            key={pageList[index]}
+                                            onClick={() => setPageList([])}
+                                            disabled
+                                        >
+                                            {pageList[index]}
+                                        </Button>
+                                    );
+                                }
+
+                                return (
+                                    <>
+                                        {
+                                            //continue to map out the pages as buttons
+
+                                            pages >= pageList[index] ? (
+                                                <Button
+                                                    key={pageList[index]}
+                                                    onClick={() => {
+                                                        props.setPageNo(pageList[index]),
+                                                            setPageList([]);
+                                                    }}
+                                                >
+                                                    {pageList[index]}
+                                                </Button>
+                                            ) : (
+                                                ""
+                                            )
+                                        }
+                                    </>
+                                );
+                            })
+                        }
+                    </div>
+                )}
+                {
+                    //Logic to determine whether the next button will be disabled or active
+                    props.pageNo === pages ? (
+                        <Button
+                            onClick={() => {
+                                props.setPageNo(props.pageNo + 1), setPageList([]);
+                            }}
+                            disabled
+                        >
+                            Next Page
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={() => {
+                                props.setPageNo(props.pageNo + 1), setPageList([]);
+                            }}
+                        >
+                            Next Page
+                        </Button>
+                    )
+                }
+            </div>
+            <div>
+                <SelectBox
+                    value={props.itemsPerPage}
+                    onChange={(value) => {
+                        props.setItemsPerPage(Number(value)), setPageList([]), props.setPageNo(1);
+                    }}
+                    options={[1, 3, 6, 9, 12, 24, 48]}
+                />
+            </div>
         </>
     );
 }
